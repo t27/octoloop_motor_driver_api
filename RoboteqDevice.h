@@ -19,6 +19,9 @@ protected:
 	int Write(string str);
 	int ReadAll(string &str);
 
+	int IssueCommandId(int id, string commandType, string command, string args, int waitms, string &response, bool isplusminus = false);
+	int IssueCommandId(int id, string commandType, string command, int waitms, string &response, bool isplusminus = false);
+
 	int IssueCommand(string commandType, string command, string args, int waitms, string &response, bool isplusminus = false);
 	int IssueCommand(string commandType, string command, int waitms, string &response, bool isplusminus = false);
 
@@ -39,6 +42,20 @@ public:
 
 	int GetValue(int operatingItem, int index, int &result);
 	int GetValue(int operatingItem, int &result);
+
+	int SetConfigId(int id, int configItem, int index, int value);
+	int SetConfigId(int id, int configItem, int value);
+
+	int SetCommandId(int id, int commandItem, int index, int value);
+	int SetCommandId(int id, int commandItem, int value);
+	int SetCommandId(int id, int commandItem);
+
+	int GetConfigId(int id, int configItem, int index, int &result);
+	int GetConfigId(int id, int configItem, int &result);
+
+	int GetValueId(int id, int operatingItem, int index, int &result);
+	int GetValueId(int id, int operatingItem, int &result);
+
 
 	RoboteqDevice();
 	~RoboteqDevice();

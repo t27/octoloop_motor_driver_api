@@ -172,6 +172,216 @@ int RoboteqDevice::ReadAll(string &str)
 	return RQ_SUCCESS;
 }
 
+/*
+ * Commands including IDs for RoboCAN protocol
+ */
+
+int RoboteqDevice::IssueCommandId(int id, string commandType, string command, string args, int waitms, string &response, bool isplusminus)
+{
+    int status;
+    string read;
+    response = "";
+    char id_str[4];
+
+    sprintf(id_str,"%d",id);
+
+    if(args == "")
+        status = Write("@" + (string)id_str  + commandType + command + "\r");
+    else
+        status = Write("@" + (string)id_str + commandType + command + " " + args + "\r");
+
+    if(status != RQ_SUCCESS)
+        return status;
+
+    usleep(waitms * 1000l);
+
+    status = ReadAll(read);
+    if(status != RQ_SUCCESS)
+        return status;
+
+    if(isplusminus) // isplusminus is for commands where the response is only a + or -
+    {
+        if(read.length() < 2) // Every response returns a + or - followed by \r\n = 2 chars?
+            return RQ_INVALID_RESPONSE;
+
+        response = read.substr(read.length() - 2, 1); //
+        return RQ_SUCCESS;
+    }
+
+    // the response is like this
+    // AI=123
+    // where AI is the command and 123 is the value
+    // For a RoboCan command with ID, the return value looks like this
+    // @04 AI=123
+    // Where 04 is the id
+    //
+    // How the following code works
+    // Find the position of 'AI=' which is (command+"=")
+    // then add command length + 1 to get to the starting index of the actual value
+    // then find the position of '\r', ie the last character
+    // now length of the value is last char position - first char position
+    
+    string::size_type pos = read.rfind(command + "="); 
+    if(pos == string::npos)
+        return RQ_INVALID_RESPONSE;
+
+    pos += command.length() + 1;
+
+    string::size_type carriage = read.find("\r", pos);
+    if(carriage == string::npos)
+        return RQ_INVALID_RESPONSE;
+
+    response = read.substr(pos, carriage - pos);
+
+    return RQ_SUCCESS;
+}
+int RoboteqDevice::IssueCommandId(int id, string commandType, string command, int waitms, string &response, bool isplusminus)
+{
+    return IssueCommandId(id, commandType, command, "", waitms, response, isplusminus);
+}
+
+int RoboteqDevice::SetConfigId(int id, int configItem, int index, int value)
+{
+    string response;
+    char command[10];
+    char args[50];
+
+    if(configItem < 0 || configItem > 255)
+        return RQ_INVALID_CONFIG_ITEM;
+
+    sprintf(command, "$%02X", configItem);
+    sprintf(args, "%i %i", index, value);
+    if(index == MISSING_VALUE)
+    {
+        sprintf(args, "%i", value);
+        index = 0;
+    }
+
+    if(index < 0)
+        return RQ_INDEX_OUT_RANGE;
+
+    int status = IssueCommandId(id, "^", command, args, 10, response, true);
+    if(status != RQ_SUCCESS)
+        return status;
+    if(response != "+")
+        return RQ_SET_CONFIG_FAILED;
+
+    return RQ_SUCCESS;
+}
+int RoboteqDevice::SetConfigId(int id, int configItem, int value)
+{
+    return SetConfigId(id, configItem, MISSING_VALUE, value);
+}
+
+int RoboteqDevice::SetCommandId(int id, int commandItem, int index, int value)
+{
+    string response;
+    char command[10];
+    char args[50];
+
+    if(commandItem < 0 || commandItem > 255)
+        return RQ_INVALID_COMMAND_ITEM;
+
+    sprintf(command, "$%02X", commandItem);
+    sprintf(args, "%i %i", index, value);
+    if(index == MISSING_VALUE)
+    {
+        if(value != MISSING_VALUE)
+            sprintf(args, "%i", value);
+        index = 0;
+    }
+
+    if(index < 0)
+        return RQ_INDEX_OUT_RANGE;
+
+    int status = IssueCommandId(id, "!", command, args, 10, response, true);
+    if(status != RQ_SUCCESS)
+        return status;
+    if(response != "+")
+        return RQ_SET_COMMAND_FAILED;
+
+    return RQ_SUCCESS;
+}
+int RoboteqDevice::SetCommandId(int id, int commandItem, int value)
+{
+    return SetCommandId(id, commandItem, MISSING_VALUE, value);
+}
+int RoboteqDevice::SetCommandId(int id, int commandItem)
+{
+    return SetCommandId(id, commandItem, MISSING_VALUE, MISSING_VALUE);
+}
+
+int RoboteqDevice::GetConfigId(int id, int configItem, int index, int &result)
+{
+    string response;
+    char command[10];
+    char args[50];
+
+    if(configItem < 0 || configItem > 255)
+        return RQ_INVALID_CONFIG_ITEM;
+
+    if(index < 0)
+        return RQ_INDEX_OUT_RANGE;
+
+    sprintf(command, "$%02X", configItem);
+    sprintf(args, "%i", index);
+
+    int status = IssueCommandId(id, "~", command, args, 10, response);
+    if(status != RQ_SUCCESS)
+        return status;
+
+    istringstream iss(response);
+    iss>>result;
+
+    if(iss.fail())
+        return RQ_GET_CONFIG_FAILED;
+
+    return RQ_SUCCESS;
+}
+int RoboteqDevice::GetConfigId(int id, int configItem, int &result)
+{
+    return GetConfigId(id, configItem, 0, result);
+}
+
+int RoboteqDevice::GetValueId(int id, int operatingItem, int index, int &result)
+{
+    string response;
+    char command[10];
+    char args[50];
+
+    if(operatingItem < 0 || operatingItem > 255)
+        return RQ_INVALID_OPER_ITEM;
+
+    if(index < 0)
+        return RQ_INDEX_OUT_RANGE;
+
+    sprintf(command, "$%02X", operatingItem);
+    sprintf(args, "%i", index);
+
+    int status = IssueCommandId(id, "?", command, args, 10, response);
+    if(status != RQ_SUCCESS)
+        return status;
+
+    istringstream iss(response);
+    iss>>result;
+
+    if(iss.fail())
+        return RQ_GET_VALUE_FAILED;
+
+    return RQ_SUCCESS;
+}
+int RoboteqDevice::GetValueId(int id, int operatingItem, int &result)
+{
+    return GetValueId(id, operatingItem, 0, result);
+}
+
+
+
+/*
+ * No ID Commands
+ *
+ */
+
 int RoboteqDevice::IssueCommand(string commandType, string command, string args, int waitms, string &response, bool isplusminus)
 {
 	int status;
