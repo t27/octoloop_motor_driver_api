@@ -1,5 +1,6 @@
-CC=g++
+# DO NOT CONVERT TABS TO SPACES HERE
 
+CC=g++
 
 all: sample.o
 
