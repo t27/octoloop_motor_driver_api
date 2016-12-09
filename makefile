@@ -3,7 +3,7 @@ CC=g++
 
 all: sample.o
 
-sample.o: RoboteqDevice.o
+sample.o: RoboteqDevice.o sample.cpp
 	$(CC) RoboteqDevice.o sample.cpp -o sample.o
 
 RoboteqDevice.o: RoboteqDevice.cpp

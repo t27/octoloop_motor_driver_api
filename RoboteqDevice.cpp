@@ -29,6 +29,7 @@ bool RoboteqDevice::IsConnected()
 {
 	return handle != RQ_INVALID_HANDLE;
 }
+
 int RoboteqDevice::Connect(string port)
 {
 	if(IsConnected())
@@ -133,7 +134,7 @@ int RoboteqDevice::Write(string str)
 	if(!IsConnected())
 		return RQ_ERR_NOT_CONNECTED;
 
-	//cout<<"Writing: "<<ReplaceString(str, "\r", "\r\n");
+	cout<<"Writing: "<<ReplaceString(str, "\r", "\r\n");
 	int countSent = write(handle, str.c_str(), str.length());
 
 	//Verify weather the Transmitting Data on UART was Successful or Not
