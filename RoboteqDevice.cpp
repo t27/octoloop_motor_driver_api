@@ -16,6 +16,8 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define MISSING_VALUE -1024
 
+#define DEBUG
+
 RoboteqDevice::RoboteqDevice()
 {
   handle = RQ_INVALID_HANDLE;
@@ -27,6 +29,9 @@ RoboteqDevice::~RoboteqDevice()
 
 bool RoboteqDevice::IsConnected()
 {
+#ifdef DEBUG
+  return true;
+#endif
   return handle != RQ_INVALID_HANDLE;
 }
 
@@ -37,7 +42,10 @@ int RoboteqDevice::Connect(string port)
     cout<<"Device is connected, attempting to disconnect."<<endl;
     Disconnect();
   }
-
+#ifdef DEBUG
+  cout<<"Simulating serial connections\n";
+#endif
+#ifndef DEBUG
   //Open port.
   cout<<"Opening port: '"<<port<<"'...";
   handle = open(port.c_str(), O_RDWR |O_NOCTTY | O_NDELAY);
@@ -58,13 +66,14 @@ int RoboteqDevice::Connect(string port)
   string response;
   cout<<"Detecting device version...";
   int z;
-  for(z=0;z<5;z++){
-  status = IssueCommand("?", "FID", 50, response);
 
-  if(status != RQ_SUCCESS)
-  {continue;}
-  if(status = RQ_SUCCESS)
-  {break;}
+  for(z=0;z<5;z++){
+    status = IssueCommand("?", "FID", 50, response);
+
+    if(status != RQ_SUCCESS)
+      {continue;}
+    if(status == RQ_SUCCESS)
+      {break;}
   }
 
   if(status != RQ_SUCCESS)
@@ -76,6 +85,7 @@ int RoboteqDevice::Connect(string port)
 
 
   cout<<response.substr(8, 4)<<"."<<endl;
+#endif
   return RQ_SUCCESS;
 }
 
@@ -134,12 +144,18 @@ int RoboteqDevice::Write(string str)
   if(!IsConnected())
     return RQ_ERR_NOT_CONNECTED;
 
+#ifndef DEBUG
   cout<<"Writing: "<<ReplaceString(str, "\r", "\r\n");
   int countSent = write(handle, str.c_str(), str.length());
 
   //Verify weather the Transmitting Data on UART was Successful or Not
   if(countSent < 0)
     return RQ_ERR_TRANSMIT_FAILED;
+#endif
+
+#ifdef DEBUG
+  cout<<"Sending Data on serial="<<str<<"\n";
+#endif
 
   return RQ_SUCCESS;
 }
@@ -152,7 +168,7 @@ int RoboteqDevice::ReadAll(string &str)
   char buf[BUFFER_SIZE + 1] = "";
 
   str = "";
-  int i = 0;
+#ifndef DEBUG
   while((countRcv = read(handle, buf, BUFFER_SIZE)) > 0)
   {
     str.append(buf, countRcv);
@@ -169,6 +185,11 @@ int RoboteqDevice::ReadAll(string &str)
     else
       return RQ_ERR_SERIAL_RECEIVE;
   }
+#endif
+
+#ifdef DEBUG
+  cout<<"Simulating Read - \n";
+#endif
 
   return RQ_SUCCESS;
 }
@@ -184,7 +205,7 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
     response = "";
     char id_str[4];
 
-    sprintf(id_str,"%d",id);
+    sprintf(id_str,"%02d",id);
 
     if(args == "")
         status = Write("@" + (string)id_str  + commandType + command + "\r");
@@ -403,6 +424,8 @@ int RoboteqDevice::IssueCommand(string commandType, string command, string args,
   if(status != RQ_SUCCESS)
     return status;
 
+#ifndef DEBUG
+// Only check the status if not in debug mode
   if(isplusminus)
   {
     if(read.length() < 2)
@@ -424,7 +447,7 @@ int RoboteqDevice::IssueCommand(string commandType, string command, string args,
     return RQ_INVALID_RESPONSE;
 
   response = read.substr(pos, carriage - pos);
-
+#endif
   return RQ_SUCCESS;
 }
 int RoboteqDevice::IssueCommand(string commandType, string command, int waitms, string &response, bool isplusminus)
@@ -521,12 +544,13 @@ int RoboteqDevice::GetConfig(int configItem, int index, int &result)
   int status = IssueCommand("~", command, args, 10, response);
   if(status != RQ_SUCCESS)
     return status;
-
+#ifndef DEBUG
   istringstream iss(response);
   iss>>result;
 
   if(iss.fail())
     return RQ_GET_CONFIG_FAILED;
+#endif
 
   return RQ_SUCCESS;
 }

@@ -54,6 +54,12 @@ int main(int argc, char *argv[])
   else
     cout<<"succeeded."<<endl;
 
+  if((status = device.SetCommandId(2, _VAR, 1, 1)) != RQ_SUCCESS)
+    cout<<"failed --> "<<status<<endl;
+  else
+    cout<<"succeeded."<<endl;
+
+
   device.Disconnect();
   return 0;
 }
