@@ -2,13 +2,16 @@
 
 CC=g++
 
-all: sample.o
+all: sample.o Motor.o
 
-sample.o: RoboteqDevice.o sample.cpp
-	$(CC) RoboteqDevice.o sample.cpp -o sample.o
+sample.o: RoboteqDevice.o ./driver/sample.cpp
+	$(CC) RoboteqDevice.o ./driver/sample.cpp -o sample.o
 
-RoboteqDevice.o: RoboteqDevice.cpp
-	$(CC) -c RoboteqDevice.cpp
+RoboteqDevice.o: ./driver/RoboteqDevice.cpp
+	$(CC) -c ./driver/RoboteqDevice.cpp
+
+Motor.o: Motor.cpp
+	$(CC) -c Motor.cpp
 
 clean:
 	rm *.o
