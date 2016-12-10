@@ -15,12 +15,20 @@ private:
   int current_position;
   int target_position;
   RoboteqDevice controller;
+  int lower_limit;
+  int higher_limit;
 
 public:
-  int setPosition();
+  bool setPosition(int position);
   int getPosition();
+  int readMotorPosition();
   int getId();
 
+  /*
+    Expects a controller obj which is initialised prevously.
+   */
   Motor(int id, RoboteqDevice controller);
+  Motor(int id, RoboteqDevice controller, int lower_limit, int higher_limit);
+
   ~Motor();
 };
