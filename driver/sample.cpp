@@ -30,30 +30,18 @@ int main(int argc, char *argv[])
   sleepms(10);
 
   int result;
-  cout<<"- GetConfig(_DINA, 1)...";
-  if((status = device.GetConfig(_DINA, 1, result)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"returned --> "<<result<<endl;
 
-  //Wait 10 ms before sending another command to device
-  sleepms(10);
-
-  cout<<"- GetValue(_ANAIN, 1)...";
-  if((status = device.GetValue(_ANAIN, 1, result)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"returned --> "<<result<<endl;
-
-  //Wait 10 ms before sending another command to device
-  sleepms(10);
-
+  // Normal non-id command
   cout<<"- SetCommand(_GO, 1, 1)...";
   if((status = device.SetCommand(_GO, 1, 1)) != RQ_SUCCESS)
     cout<<"failed --> "<<status<<endl;
   else
     cout<<"succeeded."<<endl;
 
+  //Wait 10 ms before sending another command to device
+  sleepms(10);
+
+  // Command with Ids (For RoboCAN networked controllers)
   if((status = device.SetCommandId(2, _VAR, 1, 1)) != RQ_SUCCESS)
     cout<<"failed --> "<<status<<endl;
   else

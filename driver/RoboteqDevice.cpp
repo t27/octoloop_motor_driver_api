@@ -16,7 +16,7 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define MISSING_VALUE -1024
 
-#define DEBUG
+// #define DEBUG
 
 RoboteqDevice::RoboteqDevice()
 {

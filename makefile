@@ -4,16 +4,16 @@ CC=g++
 
 all: sample.o Motor.o example.o
 
-sample.o: RoboteqDevice.o ./driver/sample.cpp
+sample.o: RoboteqDevice.o ./driver/sample.cpp ./driver/RoboteqDevice.cpp
 	$(CC) RoboteqDevice.o ./driver/sample.cpp -o sample.o
 
-RoboteqDevice.o: ./driver/RoboteqDevice.cpp
+RoboteqDevice.o: ./driver/RoboteqDevice.cpp ./driver/RoboteqDevice.h
 	$(CC) -c ./driver/RoboteqDevice.cpp
 
-Motor.o: Motor.cpp RoboteqDevice.o
+Motor.o: Motor.cpp Motor.h RoboteqDevice.o ./driver/RoboteqDevice.cpp
 	$(CC) -c Motor.cpp
 
-example.o: Motor.o RoboteqDevice.o
+example.o: Motor.o RoboteqDevice.o ./driver/RoboteqDevice.cpp
 	$(CC) Motor.o RoboteqDevice.o example.cpp -o example.o
 
 clean:
