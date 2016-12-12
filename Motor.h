@@ -23,6 +23,7 @@ public:
   int getPosition();
   int readMotorPosition();
   int getId();
+  bool goHome();
 
   /*
     Expects a controller obj which is initialised prevously.

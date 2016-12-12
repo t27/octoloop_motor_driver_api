@@ -70,3 +70,13 @@ bool Motor::setPosition(int position) {
     return false;
   }
 }
+
+bool Motor::goHome() {
+  int status;
+  if((status = controller.SetCommandId(id, _VAR, 1, 1)) == RQ_SUCCESS) {
+    return true;
+  } else {
+    cout<<"Go Home command Failure - "<<status<<endl;
+    return false;
+  }
+}
