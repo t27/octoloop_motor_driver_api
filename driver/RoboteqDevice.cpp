@@ -141,11 +141,13 @@ void RoboteqDevice::InitPort()
 
 int RoboteqDevice::Write(string str)
 {
+  cout<<"\n=======Inside Write========\n";
   if(!IsConnected())
     return RQ_ERR_NOT_CONNECTED;
+  cout<<"\n======= Connected  ========\n";
 
 #ifndef DEBUG
-  cout<<"Writing: "<<ReplaceString(str, "\r", "\r\n");
+  cout<<"writing....."<<str;
   int countSent = write(handle, str.c_str(), str.length());
 
   //Verify weather the Transmitting Data on UART was Successful or Not
@@ -168,6 +170,7 @@ int RoboteqDevice::ReadAll(string &str)
   char buf[BUFFER_SIZE + 1] = "";
 
   str = "";
+  int i=0;
 #ifndef DEBUG
   while((countRcv = read(handle, buf, BUFFER_SIZE)) > 0)
   {
@@ -207,14 +210,19 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
 
     sprintf(id_str,"%02d",id);
 
-    if(args == "")
-        status = Write("@" + (string)id_str  + commandType + command + "\r");
-    else
-        status = Write("@" + (string)id_str + commandType + command + " " + args + "\r");
+    string id_stdstr(id_str);
 
+    string cmdstr;
+    if(args == "")
+        cmdstr = ("@" + id_stdstr + commandType + command + "\r");
+    else
+        cmdstr = ("@" + id_stdstr + commandType + command + " " + args + "\r");
+
+    cout<<"Issuing command = "<<cmdstr<<"\n";
+    status = Write(cmdstr);
     if(status != RQ_SUCCESS)
         return status;
-
+    cout<<"Writing done\n\n";
     usleep(waitms * 1000l);
 
     status = ReadAll(read);
@@ -401,7 +409,6 @@ int RoboteqDevice::GetValueId(int id, int operatingItem, int &result)
 
 /*
  * No ID Commands
- *
  */
 
 int RoboteqDevice::IssueCommand(string commandType, string command, string args, int waitms, string &response, bool isplusminus)

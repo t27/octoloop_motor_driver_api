@@ -6,12 +6,12 @@
 
 using namespace std;
 
-Motor::Motor(int id, RoboteqDevice controller) {
+Motor::Motor(int id, RoboteqDevice &controller) {
   this->id = id;
   this->controller = controller;
 }
 
-Motor::Motor(int id, RoboteqDevice controller, int lower_limit, int higher_limit) {
+Motor::Motor(int id, RoboteqDevice &controller, int lower_limit, int higher_limit) {
   this -> id = id;
   this -> controller = controller;
   this -> lower_limit = lower_limit;
@@ -72,8 +72,9 @@ bool Motor::setPosition(int position) {
 }
 
 bool Motor::goHome() {
-  int status;
-  if((status = controller.SetCommandId(id, _VAR, 1, 1)) == RQ_SUCCESS) {
+  int status = controller.SetCommandId(id, _VAR, 1, 1);
+
+  if((status) == RQ_SUCCESS) {
     return true;
   } else {
     cout<<"Go Home command Failure - "<<status<<endl;
