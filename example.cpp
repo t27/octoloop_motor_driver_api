@@ -24,5 +24,3 @@ int main() {
   motors[0]->goHome();
   // cout<<motors[0]->getId();
 }
-
-// TODO FIX ISSUE - SetCommand doesnt work inside Motor class, but works normally!! WHYYYYYY!!!!!!!!!!!! >:()
