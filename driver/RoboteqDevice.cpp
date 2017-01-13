@@ -16,7 +16,7 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define MISSING_VALUE -1024
 
-// #define DEBUG
+// #define ROBOTEQ_DEBUG
 
 RoboteqDevice::RoboteqDevice()
 {
@@ -29,7 +29,7 @@ RoboteqDevice::~RoboteqDevice()
 
 bool RoboteqDevice::IsConnected()
 {
-#ifdef DEBUG
+#ifdef ROBOTEQ_DEBUG
   return true;
 #endif
   return handle != RQ_INVALID_HANDLE;
@@ -42,10 +42,10 @@ int RoboteqDevice::Connect(string port)
     cout<<"Device is connected, attempting to disconnect."<<endl;
     Disconnect();
   }
-#ifdef DEBUG
+#ifdef ROBOTEQ_DEBUG
   cout<<"Simulating serial connections\n";
 #endif
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   //Open port.
   cout<<"Opening port: '"<<port<<"'...";
   handle = open(port.c_str(), O_RDWR |O_NOCTTY | O_NDELAY);
@@ -146,7 +146,7 @@ int RoboteqDevice::Write(string str)
     return RQ_ERR_NOT_CONNECTED;
   cout<<"\n======= Connected  ========\n";
 
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   cout<<"writing....."<<str;
   int countSent = write(handle, str.c_str(), str.length());
 
@@ -155,7 +155,7 @@ int RoboteqDevice::Write(string str)
     return RQ_ERR_TRANSMIT_FAILED;
 #endif
 
-#ifdef DEBUG
+#ifdef ROBOTEQ_DEBUG
   cout<<"Sending Data on serial="<<str<<"\n";
 #endif
 
@@ -170,8 +170,7 @@ int RoboteqDevice::ReadAll(string &str)
   char buf[BUFFER_SIZE + 1] = "";
 
   str = "";
-  int i=0;
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   while((countRcv = read(handle, buf, BUFFER_SIZE)) > 0)
   {
     str.append(buf, countRcv);
@@ -190,7 +189,7 @@ int RoboteqDevice::ReadAll(string &str)
   }
 #endif
 
-#ifdef DEBUG
+#ifdef ROBOTEQ_DEBUG
   cout<<"Simulating Read - \n";
 #endif
 
@@ -431,7 +430,7 @@ int RoboteqDevice::IssueCommand(string commandType, string command, string args,
   if(status != RQ_SUCCESS)
     return status;
 
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
 // Only check the status if not in debug mode
   if(isplusminus)
   {
@@ -551,7 +550,7 @@ int RoboteqDevice::GetConfig(int configItem, int index, int &result)
   int status = IssueCommand("~", command, args, 10, response);
   if(status != RQ_SUCCESS)
     return status;
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   istringstream iss(response);
   iss>>result;
 

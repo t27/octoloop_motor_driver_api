@@ -53,7 +53,6 @@ int Motor::readMotorPosition() {
     cout<<"Read Position Failure"<<endl;
     return -1;
   }
-
 }
 
 bool Motor::setPosition(int position) {
