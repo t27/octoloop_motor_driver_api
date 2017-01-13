@@ -11,12 +11,12 @@ using namespace std;
 class Motor {
 
 private:
-  int id;
-  int current_position;
-  int target_position;
-  RoboteqDevice controller;
-  int lower_limit;
-  int higher_limit;
+  int id_;
+  int current_position_;
+  int target_position_;
+  RoboteqDevice controller_;
+  int lower_limit_;
+  int higher_limit_;
 
 public:
   bool setPosition(int position);
@@ -24,6 +24,7 @@ public:
   int readMotorPosition();
   int getId();
   bool goHome();
+  bool goHomeAsync();
 
   /*
     Expects a controller obj which is initialised prevously.

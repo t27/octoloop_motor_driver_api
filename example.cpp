@@ -20,7 +20,9 @@ int main() {
   for(int i = 0; i < MOTOR_COUNT; i++) {
     motors[i] = new Motor(MOTOR_IDS[i], device, ENCODER_LOWER_LIMIT[i], ENCODER_HIGHER_LIMIT[i]);
   }
-  motors[0]->setPosition(500);
+  // motors[0]->setPosition(500);
   motors[0]->goHome();
+  // motors[1]->setPosition(1500);
+  cout<<"Pos="<<motors[1]->readMotorPosition();
   // cout<<motors[0]->getId();
 }

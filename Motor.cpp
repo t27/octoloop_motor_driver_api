@@ -7,20 +7,20 @@
 using namespace std;
 
 Motor::Motor(int id, RoboteqDevice &controller) {
-  this->id = id;
-  this->controller = controller;
+  this->id_ = id;
+  this->controller_ = controller;
 }
 
 Motor::Motor(int id, RoboteqDevice &controller, int lower_limit, int higher_limit) {
-  this -> id = id;
-  this -> controller = controller;
-  this -> lower_limit = lower_limit;
-  this -> higher_limit = higher_limit;
+  this -> id_ = id;
+  this -> controller_ = controller;
+  this -> lower_limit_ = lower_limit;
+  this -> higher_limit_ = higher_limit;
 }
 
 
 Motor::~Motor() {
-  controller.Disconnect();
+  controller_.Disconnect();
 }
 
 /**
@@ -28,7 +28,7 @@ Motor::~Motor() {
  * @return [Motor id]
  */
 int Motor::getId() {
-  return id;
+  return id_;
 }
 
 /**
@@ -36,7 +36,7 @@ int Motor::getId() {
  * @return [returns value of the position variable]
  */
 int Motor::getPosition() {
-  return current_position;
+  return current_position_;
 }
 
 /**
@@ -46,23 +46,23 @@ int Motor::getPosition() {
 int Motor::readMotorPosition() {
   int result = -1;
   int status;
-  if((status = controller.GetValueId(id, _C, result)) == RQ_SUCCESS) {
-    current_position = result;
+  if((status = controller_.GetValueId(id_, _P, result)) == RQ_SUCCESS) {
+    current_position_ = result;
     return result;
   } else {
-    cout<<"Read Position Failure"<<endl;
+    cout<<"[MotorDriverLib]Read Position Failure"<<endl;
     return -1;
   }
 }
 
 bool Motor::setPosition(int position) {
   int status;
-  if (position >= lower_limit && position <= higher_limit) {
-    if((status = controller.SetCommandId(id, _P, position)) == RQ_SUCCESS) {
-      controller.SetCommandId(id, _P, position);
+  if (position >= lower_limit_ && position <= higher_limit_) {
+    if((status = controller_.SetCommandId(id_, _P, position)) == RQ_SUCCESS) {
+      controller_.SetCommandId(id_, _P, position);
       return true;
     } else {
-      cout<<"Set Position Failure - No response received - "<<status<<endl;
+      cout<<"[MotorDriverLib]Set Position Failure - No response received - "<<status<<endl;
       return false;
     }
   } else {
@@ -71,12 +71,28 @@ bool Motor::setPosition(int position) {
 }
 
 bool Motor::goHome() {
-  int status = controller.SetCommandId(id, _VAR, 1, 1);
-
+  int status = controller_.SetCommandId(id_, _VAR, 1, 1);
+  string readData;
+  int index = -1;
+  while(index < 0) {
+    // cout<<"[MotorDriverLib]index="<<index<<"data="<<readData;
+    controller_.ReadAll(readData);
+    index = readData.find("H");
+  }
   if((status) == RQ_SUCCESS) {
     return true;
   } else {
-    cout<<"Go Home command Failure - "<<status<<endl;
+    cout<<"[MotorDriverLib]Go Home command Failure - "<<status<<endl;
+    return false;
+  }
+}
+
+bool Motor::goHomeAsync() {
+  int status = controller_.SetCommandId(id_, _VAR, 1, 1);
+  if((status) == RQ_SUCCESS) {
+    return true;
+  } else {
+    cout<<"[MotorDriverLib]Go Home command Failure - "<<status<<endl;
     return false;
   }
 }

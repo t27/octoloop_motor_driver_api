@@ -2,7 +2,7 @@
 
 CC=g++
 
-all: sample.o Motor.o example.o
+all: example.cpp sample.o Motor.o example.o
 
 sample.o: RoboteqDevice.o ./driver/sample.cpp ./driver/RoboteqDevice.cpp
 	$(CC) RoboteqDevice.o ./driver/sample.cpp -o sample.o
