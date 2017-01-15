@@ -46,7 +46,7 @@ int Motor::getPosition() {
 int Motor::readMotorPosition() {
   int result = -1;
   int status;
-  if((status = controller_.GetValueId(id_, _P, result)) == RQ_SUCCESS) {
+  if((status = controller_.GetValueId(id_, _C, result)) == RQ_SUCCESS) {
     current_position_ = result;
     return result;
   } else {
@@ -72,12 +72,10 @@ bool Motor::setPosition(int position) {
 
 bool Motor::goHome() {
   int status = controller_.SetCommandId(id_, _VAR, 1, 1);
-  string readData;
-  int index = -1;
-  while(index < 0) {
-    // cout<<"[MotorDriverLib]index="<<index<<"data="<<readData;
-    controller_.ReadAll(readData);
-    index = readData.find("H");
+  int readValue = 1;
+  while(readValue != 0) {
+    controller_.GetValueId(id_, _VAR, 1, readValue);
+    cout<<"ReadValue="<<readValue<<"\n";
   }
   if((status) == RQ_SUCCESS) {
     return true;
