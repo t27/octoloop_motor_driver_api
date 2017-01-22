@@ -50,7 +50,9 @@ int Motor::readMotorPosition() {
     current_position_ = result;
     return result;
   } else {
+#ifdef PRINTING_ON
     cout<<"[MotorDriverLib]Read Position Failure"<<endl;
+#endif
     return -1;
   }
 }
@@ -62,7 +64,9 @@ bool Motor::setPosition(int position) {
       controller_.SetCommandId(id_, _P, position);
       return true;
     } else {
+#ifdef PRINTING_ON
       cout<<"[MotorDriverLib]Set Position Failure - No response received - "<<status<<endl;
+#endif
       return false;
     }
   } else {
@@ -75,12 +79,16 @@ bool Motor::goHome() {
   int readValue = 1;
   while(readValue != 0) {
     controller_.GetValueId(id_, _VAR, 1, readValue);
+#ifdef PRINTING_ON
     cout<<"ReadValue="<<readValue<<"\n";
+#endif
   }
   if((status) == RQ_SUCCESS) {
     return true;
   } else {
+#ifdef PRINTING_ON
     cout<<"[MotorDriverLib]Go Home command Failure - "<<status<<endl;
+#endif
     return false;
   }
 }
@@ -90,7 +98,9 @@ bool Motor::goHomeAsync() {
   if((status) == RQ_SUCCESS) {
     return true;
   } else {
+#ifdef PRINTING_ON
     cout<<"[MotorDriverLib]Go Home command Failure - "<<status<<endl;
+#endif
     return false;
   }
 }
