@@ -10,6 +10,7 @@ const int ENCODER_LOWER_LIMIT[] = {0, 0, 0, 0, 0};
 
 const int ENCODER_HIGHER_LIMIT[] = {16383, 16383, 16383, 16383, 16383};
 
+const int MOTOR_MAX_SPEED = 1000;
 
 // ToDo
 // const int SOFT_LOWER_LIMIT[] = {} // Depending on the physical arrangement of the motor in the arm
