@@ -32,19 +32,12 @@ int Motor::getId() {
   return id_;
 }
 
-/**
- * Returns the position value from the object variable(last known position)
- * @return Value of the position variable
- */
-int Motor::getPosition() {
-  return current_position_;
-}
 
 /**
  * Reads current position directly from the motor
  * @return Reads the  current position from the motor
  */
-int Motor::readMotorPosition() {
+int Motor::getPosition() {
   int result = -1;
   int status;
   if((status = controller_.GetValueId(id_, _C, result)) == RQ_SUCCESS) {
@@ -54,9 +47,10 @@ int Motor::readMotorPosition() {
 #ifdef PRINTING_ON
     cout<<"[MotorDriverLib]Read Position Failure"<<endl;
 #endif
-    return -1;
+    return -100;
   }
 }
+
 
 /**
  * Set the target position for the motor

@@ -16,6 +16,9 @@ private:
 protected:
   void InitPort();
 
+  int Write(string str);
+  int ReadAll(string &str);
+
   int IssueCommandId(int id, string commandType, string command, string args, int waitms, string &response, bool isplusminus = false);
   int IssueCommandId(int id, string commandType, string command, int waitms, string &response, bool isplusminus = false);
 
@@ -23,9 +26,6 @@ protected:
   int IssueCommand(string commandType, string command, int waitms, string &response, bool isplusminus = false);
 
 public:
-
-  int Write(string str);
-  int ReadAll(string &str);
 
   bool IsConnected();
   int Connect(string port);

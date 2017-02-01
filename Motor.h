@@ -25,7 +25,6 @@ public:
 
   bool setPosition(int position);
   int getPosition();
-  int readMotorPosition();
 
   bool setNextPosition(int position);
 
