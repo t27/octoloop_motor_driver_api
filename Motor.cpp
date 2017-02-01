@@ -11,6 +11,9 @@ Motor::Motor(int id, RoboteqDevice &controller) {
   this->controller_ = controller;
 }
 
+/**
+ * Parameterised contructor, lower_limit and higher_limit are used to limit values sent to the motor only
+ */
 Motor::Motor(int id, RoboteqDevice &controller, int lower_limit, int higher_limit, int max_speed) {
   this -> id_ = id;
   this -> controller_ = controller;
@@ -87,7 +90,7 @@ bool Motor::setNextPosition(int position) {
       return true;
     } else {
 #ifdef PRINTING_ON
-      cout<<"[MotorDriverLib]Set Position Failure - No response received - "<<status<<endl;
+      cout<<"[MotorDriverLib]Set Next Position Failure - No response received - "<<status<<endl;
 #endif
       return false;
     }
@@ -108,7 +111,7 @@ int Motor::getSpeed() {
     return result;
   } else {
 #ifdef PRINTING_ON
-    cout<<"[MotorDriverLib]Read Position Failure"<<endl;
+    cout<<"[MotorDriverLib]Read Speed Failure"<<endl;
 #endif
     return -1;
   }
@@ -126,7 +129,7 @@ bool Motor::setSpeed(int value) {
       return true;
     } else {
 #ifdef PRINTING_ON
-      cout<<"[MotorDriverLib]Set Position Failure - No response received - "<<status<<endl;
+      cout<<"[MotorDriverLib]Set Speed Failure - No response received - "<<status<<endl;
 #endif
       return false;
     }
@@ -147,7 +150,7 @@ bool Motor::setNextSpeed(int value) {
       return true;
     } else {
 #ifdef PRINTING_ON
-      cout<<"[MotorDriverLib]Set Position Failure - No response received - "<<status<<endl;
+      cout<<"[MotorDriverLib]Set Next Speed Failure - No response received - "<<status<<endl;
 #endif
       return false;
     }
@@ -163,9 +166,26 @@ bool Motor::destinationReached() {
     return result;
   } else {
 #ifdef PRINTING_ON
-    cout<<"[MotorDriverLib]Read Position Failure"<<endl;
+    cout<<"[MotorDriverLib]Read DR Failure"<<endl;
 #endif
     return -1;
+  }
+}
+
+bool Motor::isLimitSwitchOn() {
+  int result = -1;
+  int status;
+  if((status = controller_.GetValueId(id_, _DIN, 5, result)) == RQ_SUCCESS) {
+    if(result == 1) {
+      return false;
+    } else {
+      return true;
+    }
+  } else {
+#ifdef PRINTING_ON
+    cout<<"[MotorDriverLib]Read Lim Switch Failure"<<endl;
+#endif
+    return false;
   }
 }
 
@@ -174,15 +194,28 @@ bool Motor::destinationReached() {
  * @return Success/Failure
  */
 bool Motor::goHome() {
-  int status = controller_.SetCommandId(id_, _VAR, 1, 1);
+  bool origLimitSwitchState = isLimitSwitchOn();
+  bool status = goHomeAsync();
+  // int status = controller_.SetCommandId(id_, _VAR, 1, 1);
   int readValue = 1;
   while(readValue != 0) {
     controller_.GetValueId(id_, _VAR, 1, readValue);
+    if (readValue == 0 && origLimitSwitchState) { // check limit switch if it was originally on
+      cout<<"here1\n";
+      bool limitSwitchNow = isLimitSwitchOn();
+      // if it is still on, homing was successful, else send home command again
+      if (!limitSwitchNow) {
+        cout<<"here2\n";
+        // cout<<"Home done and limit switch is still off\n";
+        goHomeAsync();
+        readValue = 1;
+      }
+    }
 #ifdef PRINTING_ON
     cout<<"ReadValue="<<readValue<<"\n";
 #endif
   }
-  if((status) == RQ_SUCCESS) {
+  if(status) {
     return true;
   } else {
 #ifdef PRINTING_ON

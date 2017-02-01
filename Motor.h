@@ -35,6 +35,7 @@ public:
 
   bool destinationReached();
 
+  bool isLimitSwitchOn();
   bool goHome();
   bool goHomeAsync();
 

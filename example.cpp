@@ -21,7 +21,6 @@ struct JointTrajectory {
    std::vector< TrajectorySegment > points;
 };
 
-
 int radPerSecToRPM(double radpersec) {
   double rpm = (radpersec/6.28)*60;
   return (int)rpm;
@@ -270,5 +269,7 @@ int main() {
   }
   // testSpeed(motors[0]);
   // executeTrajectory(createSimpleTrajectory(), motors);
-  singleMotorTrajectory(motors[1]);
+  // singleMotorTrajectory(motors[1]);
+  motors[1]->goHome();
+  cout<<"Home done";
 }
